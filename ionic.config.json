@@ -1,0 +1,7 @@
+{
+  "name": "project-task-crud",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "project-task-crud",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
