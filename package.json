@@ -1,8 +1,8 @@
 {
   "name": "project-task-crud",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "author": "Snowbases",
+  "homepage": "https://github.com/snowbases",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -13,6 +13,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^12.2.3",
     "@angular/common": "~12.1.1",
     "@angular/compiler": "~12.1.1",
     "@angular/core": "~12.1.1",
@@ -25,9 +26,16 @@
     "@capacitor/haptics": "1.0.2",
     "@capacitor/keyboard": "1.0.2",
     "@capacitor/status-bar": "1.0.2",
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@ionic/angular": "^5.5.2",
+    "@swimlane/ngx-datatable": "^19.0.0",
+    "bootstrap": "^5.1.0",
+    "dexie": "^3.0.3",
+    "moment": "^2.29.1",
+    "ngx-bootstrap": "^7.0.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
+    "uuid": "^8.3.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

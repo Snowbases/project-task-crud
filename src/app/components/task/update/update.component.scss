@@ -1,0 +1,75 @@
+@import "~bootstrap/scss/bootstrap";
+
+:host {
+  :focus {
+    outline: none;
+  }
+}
+
+ion-content {
+  > form {
+    > div.form-group {
+      margin-bottom: 1em;
+
+      div.label-wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-content: flex-end;
+        align-items: baseline;
+        justify-content: flex-start;
+        margin-bottom: 7px;
+
+        > label {
+          color: #000000;
+          font-family: system-ui;
+          font-size: 0.9em;
+          font-style: normal;
+          font-weight: 500;
+        }
+
+        div.container-error {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-content: center;
+          align-items: center;
+          justify-content: center;
+          margin-right: 7px;
+          margin-left: auto;
+          transform: translateY(5px);
+
+          > ion-icon {
+            width: 18px;
+            height: 18px;
+            margin: auto;
+            margin-right: 2px;
+          }
+
+          div.label-message {
+            > ion-label {
+              color: #000000;
+              font-family: system-ui;
+              font-size: 0.8em;
+              font-style: normal;
+              font-weight: 400;
+            }
+          }
+        }
+      }
+
+      > input {
+        color: #000000;
+        font-family: system-ui;
+        font-size: 1em;
+        font-style: normal;
+        font-weight: 400;
+      }
+    }
+
+    > div.container-button {
+      > button {
+      }
+    }
+  }
+}

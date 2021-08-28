@@ -1,0 +1,214 @@
+<!-- header -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button [defaultHref]="'/task'">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Task</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Create Task</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <!-- create -->
+  <form class="ion-padding" [formGroup]="taskForm">
+    <!-- id -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="id">ID</label>
+        <ng-container *ngFor="let validation of validation_messages.id">
+          <div
+            *ngIf="(taskForm.get('id').hasError(validation.type) && (taskForm.get('id').dirty || taskForm.get('id').touched)) || (taskForm.get('id').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('id').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <input [(ngModel)]="data.id" formControlName="id" name="id" type="text" class="form-control" id="id"
+        placeholder="Enter ID">
+    </div>
+
+    <!-- project id -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="project_id">Project ID</label>
+        <ng-container *ngFor="let validation of validation_messages.project_id">
+          <div
+            *ngIf="(taskForm.get('project_id').hasError(validation.type) && (taskForm.get('project_id').dirty || taskForm.get('project_id').touched)) || (taskForm.get('project_id').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('project_id').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('project_id').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('project_id').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <input [(ngModel)]="data.project_id" formControlName="project_id" name="project_id" type="text"
+        class="form-control" id="project_id" placeholder="Enter Project ID" [disabled]="true" readonly>
+    </div>
+
+    <!-- user -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="user">User</label>
+        <ng-container *ngFor="let validation of validation_messages.user">
+          <div
+            *ngIf="(taskForm.get('user').hasError(validation.type) && (taskForm.get('user').dirty || taskForm.get('user').touched)) || (taskForm.get('user').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('user').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('user').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('user').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <input [(ngModel)]="data.user" formControlName="user" name="user" type="text" class="form-control" id="user"
+        placeholder="Enter User">
+    </div>
+
+    <!-- title -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="title">Title</label>
+        <ng-container *ngFor="let validation of validation_messages.title">
+          <div
+            *ngIf="(taskForm.get('title').hasError(validation.type) && (taskForm.get('title').dirty || taskForm.get('title').touched)) || (taskForm.get('title').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('title').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('title').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('title').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <input [(ngModel)]="data.title" formControlName="title" name="title" type="text" class="form-control" id="title"
+        placeholder="Enter Title">
+    </div>
+
+    <!-- slug -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="slug">Slug</label>
+        <ng-container *ngFor="let validation of validation_messages.slug">
+          <div
+            *ngIf="(taskForm.get('slug').hasError(validation.type) && (taskForm.get('slug').dirty || taskForm.get('slug').touched)) || (taskForm.get('slug').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('slug').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('slug').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('slug').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <input [(ngModel)]="data.slug" formControlName="slug" name="slug" type="text" class="form-control" id="slug"
+        placeholder="Enter Slug">
+    </div>
+
+    <!-- description -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="description">Description</label>
+        <!-- <ng-container *ngFor="let validation of validation_messages.description">
+          <div
+            *ngIf="(taskForm.get('description').hasError(validation.type) && (taskForm.get('description').dirty || taskForm.get('description').touched)) || (taskForm.get('description').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('description').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('description').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('description').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container> -->
+      </div>
+
+      <input [(ngModel)]="data.description" formControlName="description" name="description" type="text"
+        class="form-control" id="description" placeholder="Enter Description">
+    </div>
+
+    <!-- due date -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="due_date">Due date</label>
+        <!-- <ng-container *ngFor="let validation of validation_messages.due_date">
+          <div
+            *ngIf="(taskForm.get('due_date').hasError(validation.type) && (taskForm.get('due_date').dirty || taskForm.get('due_date').touched)) || (taskForm.get('due_date').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('due_date').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('due_date').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('due_date').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container> -->
+      </div>
+
+      <input [(ngModel)]="data.due_date" formControlName="due_date" name="due_date" class="form-control" id="due_date"
+        bsDatepicker placement="top" input="date" [bsConfig]="{ containerClass: 'theme-default' }"
+        placeholder="Select Date">
+    </div>
+
+    <!-- status -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="status">Status</label>
+        <ng-container *ngFor="let validation of validation_messages.status">
+          <div
+            *ngIf="(taskForm.get('status').hasError(validation.type) && (taskForm.get('status').dirty || taskForm.get('status').touched)) || (taskForm.get('status').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('status').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('status').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('status').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <select [(ngModel)]="data.status" formControlName="status" name="status" class="form-select"
+        aria-label="Select task status">
+        <option value="0" selected>To-Do</option>
+        <option value="1">Doing</option>
+        <option value="2">Done</option>
+      </select>
+    </div>
+
+    <div class="container-button">
+      <button [disabled]="taskForm.invalid" (click)="create()" type="button" class="btn btn-primary">Create
+        task</button>
+    </div>
+  </form>
+</ion-content>

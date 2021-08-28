@@ -1,0 +1,81 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button [defaultHref]="'/project'">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title>Tasks</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [fullscreen]="true">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Project Information</ion-card-title>
+      <ion-card-subtitle>Name: {{ project?.project_name || 'No project name' }}</ion-card-subtitle>
+      <ion-card-subtitle>Slug: {{ project?.project_slug || 'No project slug' }}</ion-card-subtitle>
+      <ion-card-subtitle>Name: {{ project?.project_manager || 'No project manager' }}</ion-card-subtitle>
+      <ion-card-subtitle>Description: {{ project?.project_description || 'No description'}}</ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+  <div class="container-option">
+    <div class="button-wrapper">
+      <button [disabled]="project == null" (click)="navigateCreateTask()" type="button" class="btn btn-primary"
+        title="Create a task for this project">Create a task</button>
+    </div>
+    <!-- <div class="form-group-search-wrapper">
+      <label for="search">Search</label>
+      <input disabled type="text" class="form-control" type="text" id="search"
+        placeholder="Type to search the name column...">
+    </div> -->
+  </div>
+  <ngx-datatable class="material" [rows]="tasks" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50"
+    rowHeight="auto" [limit]="5">
+    <ngx-datatable-column name="ID">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.id }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="User">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.user }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Title">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.title }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Slug">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.slug }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Description">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.description }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Due date">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ row?.due_date }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Status">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        {{ taskStatus[row?.status] }}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Action">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        <a (click)="selectToEdit(row)" class="edit"><i class="fas fa-edit"></i>
+          <h6>Edit</h6>
+        </a>
+        <a (click)="selectToDelete(row)" class="delete"><i class="fas fa-trash" data-toggle="tooltip"
+            title="Delete"></i>
+          <h6>Delete</h6>
+        </a>
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</ion-content>

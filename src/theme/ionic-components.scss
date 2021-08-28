@@ -1,0 +1,63 @@
+.toast-icon {
+  .icon-inner,
+  .ionicon,
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    justify-self: center;
+    width: 1em;
+    height: 1em;
+    margin: auto;
+  }
+
+  .toast-content {
+    padding-right: 15px;
+    padding-left: 5px !important;
+  }
+}
+
+.toast-normal {
+  --color: #ffffff;
+  --button-color: #ffffff;
+  --border-radius: 0;
+  --ion-safe-area-bottom: -8px;
+  --start: 0;
+  --end: 0;
+  --width: 100%;
+  --min-width: 100%;
+  --max-width: 100%;
+  font-family: system-ui !important;
+  font-size: 1em;
+}
+
+.toast-error {
+  --background: #ff1837;
+  --color: #ffffff;
+  --button-color: #ffffff;
+  --border-radius: 0;
+  --ion-safe-area-bottom: -8px;
+  --start: 0;
+  --end: 0;
+  --width: 100%;
+  --min-width: 100%;
+  --max-width: 100%;
+  font-family: system-ui !important;
+  font-size: 1em;
+}
+
+.toast-success {
+  --background: #36b345;
+  --color: #ffffff;
+  --button-color: #ffffff;
+  --border-radius: 0;
+  --ion-safe-area-bottom: -8px;
+  --start: 0;
+  --end: 0;
+  --width: 100%;
+  --min-width: 100%;
+  --max-width: 100%;
+  font-family: system-ui !important;
+  font-size: 1em;
+}
