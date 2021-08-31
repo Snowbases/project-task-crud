@@ -107,7 +107,8 @@ export class ProjectPage implements OnInit {
       mode: 'md',
       cssClass: 'back-alert',
       header: 'Delete confirmation',
-      message: `Delete project name: ${project?.name}?`,
+      message: `By deleting project, all tasks under
+      project will also be deleted.`,
       buttons: [
         {
           text: 'No',
