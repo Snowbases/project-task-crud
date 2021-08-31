@@ -61,3 +61,33 @@
   font-family: system-ui !important;
   font-size: 1em;
 }
+
+div.loading-content.sc-ion-loading-ios {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500 !important;
+
+  > ion-img.spinner {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
+}
+
+.sc-ion-loading-ios-h {
+  --max-width: 270px;
+  --max-height: 90%;
+  --spinner-color: var(--ion-color-step-600, #666666);
+  --backdrop-opacity: var(--ion-backdrop-opacity, 0.3);
+  color: #000000;
+  font-size: 14px;
+}
+
+.loading-translucent.sc-ion-loading-ios-h .loading-wrapper.sc-ion-loading-ios {
+  backdrop-filter: saturate(180%) blur(20px);
+  background-color: rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.95);
+}

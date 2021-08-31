@@ -15,31 +15,7 @@
       <ion-title size="large">Update Task</ion-title>
     </ion-toolbar>
   </ion-header>
-  <!-- update -->
   <form class="ion-padding" [formGroup]="taskForm">
-    <!-- id -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="id">ID</label>
-        <ng-container *ngFor="let validation of validation_messages.id">
-          <div
-            *ngIf="(taskForm.get('id').hasError(validation.type) && (taskForm.get('id').dirty || taskForm.get('id').touched)) || (taskForm.get('id').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon [name]="(taskForm.get('id').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (taskForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label [ngStyle]="{ 'color': (taskForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-
-      <input [(ngModel)]="data.id" formControlName="id" name="id" type="text" class="form-control" id="id"
-        placeholder="Enter ID">
-    </div>
-
     <!-- project id -->
     <div class="form-group">
       <div class="label-wrapper">
@@ -61,29 +37,6 @@
 
       <input [(ngModel)]="data.project_id" formControlName="project_id" name="project_id" type="text"
         class="form-control" id="project_id" placeholder="Enter Project ID" [disabled]="true" readonly>
-    </div>
-
-    <!-- user -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="user">User</label>
-        <ng-container *ngFor="let validation of validation_messages.user">
-          <div
-            *ngIf="(taskForm.get('user').hasError(validation.type) && (taskForm.get('user').dirty || taskForm.get('user').touched)) || (taskForm.get('user').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon [name]="(taskForm.get('user').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (taskForm.get('user').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label [ngStyle]="{ 'color': (taskForm.get('user').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-
-      <input [(ngModel)]="data.user" formControlName="user" name="user" type="text" class="form-control" id="user"
-        placeholder="Enter User">
     </div>
 
     <!-- title -->
@@ -109,29 +62,6 @@
         placeholder="Enter Title">
     </div>
 
-    <!-- slug -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="slug">Slug</label>
-        <ng-container *ngFor="let validation of validation_messages.slug">
-          <div
-            *ngIf="(taskForm.get('slug').hasError(validation.type) && (taskForm.get('slug').dirty || taskForm.get('slug').touched)) || (taskForm.get('slug').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon [name]="(taskForm.get('slug').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (taskForm.get('slug').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label [ngStyle]="{ 'color': (taskForm.get('slug').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-
-      <input [(ngModel)]="data.slug" formControlName="slug" name="slug" type="text" class="form-control" id="slug"
-        placeholder="Enter Slug" [disabled]="true" readonly>
-    </div>
-
     <!-- description -->
     <div class="form-group">
       <div class="label-wrapper">
@@ -155,6 +85,33 @@
         class="form-control" id="description" placeholder="Enter Description">
     </div>
 
+    <!-- assigned to -->
+    <div class="form-group">
+      <div class="label-wrapper">
+        <label for="assigned_to_user_id">Assigned to</label>
+        <ng-container *ngFor="let validation of validation_messages.assigned_to_user_id">
+          <div
+            *ngIf="(taskForm.get('assigned_to_user_id').hasError(validation.type) && (taskForm.get('assigned_to_user_id').dirty || taskForm.get('assigned_to_user_id').touched)) || (taskForm.get('assigned_to_user_id').valid && validation?.type == 'valid')"
+            class="container-error">
+            <ion-icon [name]="(taskForm.get('assigned_to_user_id').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+              [ngStyle]="{ 'color': (taskForm.get('assigned_to_user_id').valid) ? '#4caf50' : '#f11f1f' }">
+            </ion-icon>
+            <div class="label-message">
+              <ion-label [ngStyle]="{ 'color': (taskForm.get('assigned_to_user_id').valid) ? '#4caf50' : '#f11f1f' }">{{
+                validation?.message }}</ion-label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <select [(ngModel)]="data.assigned_to_user_id" formControlName="assigned_to_user_id" name="assigned_to_user_id" class="form-select"
+        aria-label="Select Assign to">
+        <option value="" disabled selected>Select assigned to</option>
+        <option *ngFor="let user of usersList" [value]="user?.key">{{
+          user?.value }}</option>
+      </select>
+    </div>
+
     <!-- due date -->
     <div class="form-group">
       <div class="label-wrapper">
@@ -175,8 +132,8 @@
       </div>
 
       <input [(ngModel)]="data.due_date" formControlName="due_date" name="due_date" class="form-control" id="due_date"
-        bsDatepicker placement="top" input="datetime-local"
-        [bsConfig]="{ containerClass: 'theme-default', dateInputFormat: 'DD/MM/YYYY' }" placeholder="Select Date">
+        bsDatepicker placement="top" input="date" [bsConfig]="{ containerClass: 'theme-default' }"
+        placeholder="Select Date">
     </div>
 
     <!-- status -->
@@ -200,9 +157,9 @@
 
       <select [(ngModel)]="data.status" formControlName="status" name="status" class="form-select"
         aria-label="Select task status">
-        <option value="0" selected>To-Do</option>
-        <option value="1">Doing</option>
-        <option value="2">Done</option>
+        <option value="To Do" selected>To Do</option>
+        <option value="Doing">Doing</option>
+        <option value="Done">Done</option>
       </select>
     </div>
 

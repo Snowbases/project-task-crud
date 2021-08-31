@@ -12,10 +12,8 @@
   <ion-card>
     <ion-card-header>
       <ion-card-title>Project Information</ion-card-title>
-      <ion-card-subtitle>Name: {{ project?.project_name || 'No project name' }}</ion-card-subtitle>
-      <ion-card-subtitle>Slug: {{ project?.project_slug || 'No project slug' }}</ion-card-subtitle>
-      <ion-card-subtitle>Name: {{ project?.project_manager || 'No project manager' }}</ion-card-subtitle>
-      <ion-card-subtitle>Description: {{ project?.project_description || 'No description'}}</ion-card-subtitle>
+      <ion-card-subtitle>Name: {{ project?.name || 'No project name' }}</ion-card-subtitle>
+      <ion-card-subtitle>Manager ID: {{ project?.manager_id || 'No manager ID' }}</ion-card-subtitle>
     </ion-card-header>
   </ion-card>
   <div class="container-option">
@@ -38,7 +36,7 @@
     </ngx-datatable-column>
     <ngx-datatable-column name="User">
       <ng-template let-row="row" ngx-datatable-cell-template>
-        {{ row?.user }}
+        {{ row?.assigned_to_user }}
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column name="Title">
@@ -53,7 +51,7 @@
     </ngx-datatable-column>
     <ngx-datatable-column name="Description">
       <ng-template let-row="row" ngx-datatable-cell-template>
-        {{ row?.description }}
+        {{ (row?.description != null) ? row?.description : 'No description' }}
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column name="Due date">
@@ -63,7 +61,7 @@
     </ngx-datatable-column>
     <ngx-datatable-column name="Status">
       <ng-template let-row="row" ngx-datatable-cell-template>
-        {{ taskStatus[row?.status] }}
+        {{ row?.status }}
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column name="Action">

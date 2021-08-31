@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Login</ion-card-title>
+    </ion-card-header>
+    <form class="ion-padding" [formGroup]="loginForm">
+      <!-- email -->
+      <div class="form-group">
+        <div class="label-wrapper">
+          <label for="email">Email</label>
+          <ng-container *ngFor="let validation of validation_messages.email">
+            <div
+              *ngIf="(loginForm.get('email').hasError(validation.type) && (loginForm.get('email').dirty || loginForm.get('email').touched))"
+              class="container-error">
+              <ion-icon [name]="(loginForm.get('email').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+                [ngStyle]="{ 'color': (loginForm.get('email').valid) ? '#4caf50' : '#f11f1f' }">
+              </ion-icon>
+              <div class="label-message">
+                <ion-label [ngStyle]="{ 'color': (loginForm.get('email').valid) ? '#4caf50' : '#f11f1f' }">{{
+                  validation?.message }}</ion-label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <input [(ngModel)]="data.email" formControlName="email" name="email" type="text" class="form-control" id="email"
+          placeholder="Enter email">
+      </div>
+
+      <!-- password -->
+      <div class="form-group">
+        <div class="label-wrapper">
+          <label for="password">Password</label>
+          <ng-container *ngFor="let validation of validation_messages.password">
+            <div
+              *ngIf="(loginForm.get('password').hasError(validation.type) && (loginForm.get('password').dirty || loginForm.get('password').touched))"
+              class="container-error">
+              <ion-icon [name]="(loginForm.get('password').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
+                [ngStyle]="{ 'color': (loginForm.get('password').valid) ? '#4caf50' : '#f11f1f' }">
+              </ion-icon>
+              <div class="label-message">
+                <ion-label [ngStyle]="{ 'color': (loginForm.get('password').valid) ? '#4caf50' : '#f11f1f' }">{{
+                  validation?.message }}</ion-label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <input [(ngModel)]="data.password" formControlName="password" name="password" type="password"
+          class="form-control" id="password" placeholder="Enter Password">
+      </div>
+
+      <div class="container-button">
+        <button [disabled]="loginForm.invalid" (click)="login()" type="button" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+  </ion-card>
+</ion-content>

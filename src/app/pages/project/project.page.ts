@@ -2,10 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AlertController, NavController, ToastController, ToastOptions } from '@ionic/angular';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import * as qs from 'querystring';
-import { ProjectDatabase } from '../../adapters/project.adapter';
-import { TaskDatabase } from '../../adapters/task.adapter';
 import { ToastEnterAnimation, ToastLeaveAnimation } from '../../animations/toast';
-import { Project } from '../../interfaces/project.interface';
+import { ApiService } from '../../services/api/api.service';
+import { AuthenticationService } from '../../services/authentication/authentication.service';
+import { UtilityService } from '../../services/utility/utility.service';
 
 @Component({
   selector: 'app-project',
@@ -15,15 +15,16 @@ import { Project } from '../../interfaces/project.interface';
 export class ProjectPage implements OnInit {
   @ViewChild(DatatableComponent) datatableComponent: DatatableComponent;
 
-  projectDatabase: ProjectDatabase;
-  taskDatabase: TaskDatabase;
-  projects: Project[];
+  projects: any[] = [];
   toast: HTMLIonToastElement;
 
   constructor(
     public alertController: AlertController,
     public navController: NavController,
-    public toastController: ToastController
+    public toastController: ToastController,
+    public authenticationService: AuthenticationService,
+    public utilityService: UtilityService,
+    public apiService: ApiService
   ) {
   }
 
@@ -32,26 +33,7 @@ export class ProjectPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // Instantiate it
-    this.projectDatabase = new ProjectDatabase();
-
-    // Open it
-    this.projectDatabase
-      .open()
-      .catch(error => {
-        console.error(`Open failed: ${error.stack}`);
-      });
-
-    this.taskDatabase = new TaskDatabase();
-
-    // Open it
-    this.taskDatabase
-      .open()
-      .catch(error => {
-        console.error(`Open failed: ${error.stack}`);
-      });
-
-    this.read();
+    this.fetch();
   }
 
   async showToastOnce(toastOptions: ToastOptions) {
@@ -67,20 +49,32 @@ export class ProjectPage implements OnInit {
     }
   }
 
-  read() {
-    console.log('read');
+  fetch() {
+    this.apiService.getProjects().then((response: any) => {
+      console.log('getProjects response', response);
+      this.projects = response;
+    }).catch((error) => {
+      console.log('getProjects error', error);
 
-    this.projectDatabase.transaction('rw', this.projectDatabase.project, async () => {
-      try {
-        const project = await this.projectDatabase.project.toArray();
-        console.log('read project', JSON.stringify(project));
-        this.projects = project;
-      } catch (error) {
-        console.log('read error', error);
+      const toastOptions: ToastOptions = {
+        message: 'Failed to get project list. Please try again.',
+        cssClass: 'toast-error',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
       }
+      this.showToastOnce(toastOptions);
 
-    }).catch(e => {
-      console.log(e.stack || e);
     });
   }
 
@@ -94,7 +88,7 @@ export class ProjectPage implements OnInit {
     }
   }
 
-  async selectToEdit(project: Project) {
+  async selectToEdit(project: any) {
     try {
       await this.navController.navigateForward('/project/update-project', {
         animationDirection: 'forward',
@@ -108,12 +102,12 @@ export class ProjectPage implements OnInit {
   }
 
 
-  async selectToDelete(project: Project) {
+  async selectToDelete(project: any) {
     const alert = await this.alertController.create({
       mode: 'md',
       cssClass: 'back-alert',
       header: 'Delete confirmation',
-      message: `Delete project name: ${project?.project_name}?`,
+      message: `Delete project name: ${project?.name}?`,
       buttons: [
         {
           text: 'No',
@@ -136,83 +130,34 @@ export class ProjectPage implements OnInit {
       console.log('onWillDismiss result', result);
       if (result?.data != undefined && result?.data) {
 
-        await Promise.all([
-          this.projectDatabase.transaction('rw', this.projectDatabase.project, async () => {
-            try {
-              return Promise.all([
-                this.projectDatabase.project
-                  .where("project_slug")
-                  .equals(project?.project_slug)
-                  .delete()
-              ]);
-            } catch (error) {
-              console.log('delete error', error);
-              return Promise.reject([error]);
-            }
+        const data = {
+          id: project?.id
+        }
+        this.apiService.deleteProject(data).then(async (response: any) => {
+          console.log('storeProject response', response);
 
-          }),
-          this.taskDatabase.transaction('rw', this.taskDatabase.task, async () => {
-            try {
-              return Promise.all([
-                this.taskDatabase.task
-                  .where("project_id")
-                  .equals(project?.project_slug)
-                  .delete()
-              ]);
-            } catch (error) {
-              console.log('delete error', error);
-              return Promise.reject([error]);
-            }
-
-          })
-        ]).then(async (result) => {
-          console.log('transaction result', result);
-
-          if (result != undefined) {
-            const toastOptions: ToastOptions = {
-              message: 'Successfully delete project.',
-              cssClass: 'toast-success',
-              duration: 3000,
-              position: 'bottom',
-              mode: 'md',
-              enterAnimation: ToastEnterAnimation,
-              leaveAnimation: ToastLeaveAnimation,
-              buttons: [
-                {
-                  icon: 'assets/icon/close-toast.svg',
-                  side: 'end',
-                  role: 'cancel',
-                  cssClass: 'toast-button-icon',
-                }
-              ]
-            }
-            this.showToastOnce(toastOptions);
-
-            this.read();
-
-          } else {
-            const toastOptions: ToastOptions = {
-              message: `Failed to delete. Record doesn't exist.`,
-              cssClass: 'toast-error',
-              duration: 3000,
-              position: 'bottom',
-              mode: 'md',
-              enterAnimation: ToastEnterAnimation,
-              leaveAnimation: ToastLeaveAnimation,
-              buttons: [
-                {
-                  icon: 'assets/icon/close-toast.svg',
-                  side: 'end',
-                  role: 'cancel',
-                  cssClass: 'toast-button-icon',
-                }
-              ]
-            }
-            this.showToastOnce(toastOptions);
+          const toastOptions: ToastOptions = {
+            message: 'Successfully delete project.',
+            cssClass: 'toast-success',
+            duration: 3000,
+            position: 'bottom',
+            mode: 'md',
+            enterAnimation: ToastEnterAnimation,
+            leaveAnimation: ToastLeaveAnimation,
+            buttons: [
+              {
+                icon: 'assets/icon/close-toast.svg',
+                side: 'end',
+                role: 'cancel',
+                cssClass: 'toast-button-icon',
+              }
+            ]
           }
+          this.showToastOnce(toastOptions);
+          this.fetch();
 
-        }).catch(async error => {
-          console.log(error.stack || error);
+        }).catch((error) => {
+          console.log('deleteProject error', error);
 
           const toastOptions: ToastOptions = {
             message: 'Failed to delete project. Please try again.',
@@ -240,7 +185,7 @@ export class ProjectPage implements OnInit {
     await alert.present();
   }
 
-  async selectToViewTask(project: Project) {
+  async selectToViewTask(project: any) {
     try {
       await this.navController.navigateForward('/task', {
         animationDirection: 'forward',
@@ -251,5 +196,73 @@ export class ProjectPage implements OnInit {
     } catch (error) {
       console.log('navigateForward error', error);
     }
+  }
+
+  async logout() {
+    const loading = await this.utilityService.loadingController.create({
+      spinner: null,
+      cssClass: 'loading-circular',
+      mode: 'ios',
+      message: '<ion-img class="spinner" src="/assets/icon/spinner.svg" alt=""></ion-img><div class="loading-content sc-ion-loading-ios">Logging out...</div>',
+    });
+    await loading.present();
+
+    this.authenticationService
+      .logout()
+      .then(async (response) => {
+        console.log('logout response', response);
+        await loading.dismiss();
+
+        try {
+          await this.navController.navigateRoot('/login', {
+            animationDirection: 'back'
+          });
+        } catch (error) {
+          console.log('navigateRoot error', error);
+        }
+
+        await this.utilityService.showToastOnce({
+          message: 'You have logout successfully.',
+          cssClass: 'toast-success',
+          duration: 3000,
+          position: 'bottom',
+          mode: 'md',
+          enterAnimation: ToastEnterAnimation,
+          leaveAnimation: ToastLeaveAnimation,
+          buttons: [
+            {
+              icon: 'assets/icon/close-toast.svg',
+              side: 'end',
+              role: 'cancel',
+              cssClass: 'toast-button-icon',
+            }
+          ]
+        });
+
+      }).catch(async (error) => {
+        console.log('logout error', error);
+        await loading.dismiss();
+
+        if (error?.error != undefined) {
+          await this.utilityService.showToastOnce({
+            message: error?.error,
+            cssClass: 'toast-error',
+            duration: 3000,
+            position: 'bottom',
+            mode: 'md',
+            enterAnimation: ToastEnterAnimation,
+            leaveAnimation: ToastLeaveAnimation,
+            buttons: [
+              {
+                icon: 'assets/icon/close-toast.svg',
+                side: 'end',
+                role: 'cancel',
+                cssClass: 'toast-button-icon',
+              }
+            ]
+          });
+        }
+
+      });
   }
 }

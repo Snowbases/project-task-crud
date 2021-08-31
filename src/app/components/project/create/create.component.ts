@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NavController, ToastController, ToastOptions } from '@ionic/angular';
-import { v1 as uuidv1 } from 'uuid';
-import { ProjectDatabase } from '../../../adapters/project.adapter';
 import { ToastEnterAnimation, ToastLeaveAnimation } from '../../../animations/toast';
-import { Project } from '../../../interfaces/project.interface';
+import { ApiService } from '../../../services/api/api.service';
 
 @Component({
   selector: 'app-create',
@@ -12,28 +10,14 @@ import { Project } from '../../../interfaces/project.interface';
   styleUrls: ['./create.component.scss'],
 })
 export class CreateComponent implements OnInit {
-  data: Project = {
-    id: '',
-    project_name: '',
-    project_slug: '',
-    project_description: '',
-    project_manager: '',
+  data: any = {
+    name: '',
+    manager_id: '',
   }
 
   validation_messages = {
-    id: [
-      { type: 'required', message: 'ID is required' },
-      { type: 'valid', message: '' }
-    ],
     project_name: [
       { type: 'required', message: 'Project Name is required' },
-      { type: 'valid', message: '' }
-    ],
-    project_slug: [
-      { type: 'required', message: 'Project Slug is required' },
-      { type: 'valid', message: '' }
-    ],
-    project_description: [
       { type: 'valid', message: '' }
     ],
     project_manager: [
@@ -43,34 +27,18 @@ export class CreateComponent implements OnInit {
   }
 
   projectForm: FormGroup;
-  projectDatabase: ProjectDatabase;
 
   toast: HTMLIonToastElement;
 
+  projectManagerList: { key: number; value: any; }[] = [];
+
   constructor(
     public toastController: ToastController,
-    public navController: NavController
+    public navController: NavController,
+    public apiService: ApiService
   ) {
     this.projectForm = new FormGroup({
-      id: new FormControl('', {
-        validators: Validators.compose([
-          Validators.required
-        ]),
-        updateOn: 'change'
-      }),
       project_name: new FormControl('', {
-        validators: Validators.compose([
-          Validators.required
-        ]),
-        updateOn: 'change'
-      }),
-      project_slug: new FormControl('', {
-        validators: Validators.compose([
-          Validators.required
-        ]),
-        updateOn: 'change'
-      }),
-      project_description: new FormControl('', {
         validators: Validators.compose([
           Validators.required
         ]),
@@ -86,23 +54,39 @@ export class CreateComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    // Instantiate it
-    this.projectDatabase = new ProjectDatabase();
+    this.apiService.getAllUsers().then((response: {}) => {
+      console.log('getAllUsers response', response);
 
-    // Open it
-    this.projectDatabase.open().catch(error => {
-      console.error(`Open failed: ${error.stack}`);
+      // https://stackoverflow.com/questions/38824349/how-to-convert-an-object-to-an-array-of-key-value-pairs-in-javascript
+      const result = Object.keys(response).map((key) => ({ 'key': Number(key), 'value': response[key] }));
+      this.projectManagerList = result;
+
+    }).catch((error) => {
+      console.log('getAllUsers error', error);
+
+      const toastOptions: ToastOptions = {
+        message: 'Failed to get project manager list. Please try again.',
+        cssClass: 'toast-error',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
+      }
+      this.showToastOnce(toastOptions);
+
     });
   }
 
   ionViewWillEnter() {
-    // Generate UUID based on time
-    this.data.project_slug = uuidv1({
-      node: [0x01, 0x23, 0x45, 0x67, 0x89, 0xab],
-      clockseq: 0x1234,
-      msecs: new Date().getTime(),
-      nsecs: 5678,
-    });
   }
 
   async showToastOnce(toastOptions: ToastOptions) {
@@ -121,49 +105,38 @@ export class CreateComponent implements OnInit {
   async create() {
     console.log('create');
 
-    this.projectDatabase.transaction('rw', this.projectDatabase.project, async () => {
+    this.apiService.storeProject(this.data).then(async (response: any) => {
+      console.log('storeProject response', response);
+
+      const toastOptions: ToastOptions = {
+        message: 'Successfully create project.',
+        cssClass: 'toast-success',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
+      }
+      this.showToastOnce(toastOptions);
+
       try {
-        return await Promise.all([await this.projectDatabase.project.add(this.data)]);
+        await this.navController.navigateBack('/project', {
+          animationDirection: 'back'
+        });
       } catch (error) {
-        console.log('add error', error);
-        await Promise.reject([error]);
+        console.log('navigateBack error', error);
       }
 
-    }).then(async (result) => {
-      console.log('transaction result', result);
-
-      if (result != undefined) {
-        console.log('added project', `project ID: ${result[0]}`);
-        const toastOptions: ToastOptions = {
-          message: 'Successfully create project.',
-          cssClass: 'toast-success',
-          duration: 3000,
-          position: 'bottom',
-          mode: 'md',
-          enterAnimation: ToastEnterAnimation,
-          leaveAnimation: ToastLeaveAnimation,
-          buttons: [
-            {
-              icon: 'assets/icon/close-toast.svg',
-              side: 'end',
-              role: 'cancel',
-              cssClass: 'toast-button-icon',
-            }
-          ]
-        }
-        this.showToastOnce(toastOptions);
-
-        try {
-          await this.navController.navigateBack('/project', {
-            animationDirection: 'back'
-          });
-        } catch (error) {
-          console.log('navigateBack error', error);
-        }
-      }
-
-    }).catch(async error => {
-      console.log(error.stack || error);
+    }).catch((error) => {
+      console.log('storeProject error', error);
 
       const toastOptions: ToastOptions = {
         message: 'Failed to create project. Please try again.',

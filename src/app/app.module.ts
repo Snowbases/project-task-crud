@@ -10,6 +10,18 @@ import { ComponentsModule } from './components/components.module';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
+import { IonicStorageModule, StorageConfig } from "@ionic/storage";
+import { IonicConfig } from "@ionic/core";
+
+const config: IonicConfig = {
+  mode: 'ios'
+}
+
+const storageConfig: StorageConfig = {
+  name: '__project_task_crud',
+  driverOrder: ['websql']
+}
 
 @NgModule({
   declarations: [
@@ -17,15 +29,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   entryComponents: [],
   imports: [
+    IonicModule.forRoot(config),
+    IonicStorageModule.forRoot(storageConfig),
+    BsDatepickerModule.forRoot(),
     BrowserModule,
-    IonicModule.forRoot({
-      mode: 'ios'
-    }),
     AppRoutingModule,
     ComponentsModule,
     NgxDatatableModule,
-    BsDatepickerModule.forRoot(),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }

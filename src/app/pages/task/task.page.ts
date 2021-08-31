@@ -1,13 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AlertController, NavController, ToastController, ToastOptions } from '@ionic/angular';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
-import { Task, TaskStatus } from '../../interfaces/task.interface';
 import * as qs from 'querystring';
 import { ActivatedRoute } from '@angular/router';
-import { Project } from '../../interfaces/project.interface';
-import { TaskDatabase } from '../../adapters/task.adapter';
 import { ToastEnterAnimation, ToastLeaveAnimation } from '../../animations/toast';
 import * as moment from "moment";
+import { ApiService } from '../../services/api/api.service';
 
 @Component({
   selector: 'app-task',
@@ -17,18 +15,16 @@ import * as moment from "moment";
 export class TaskPage implements OnInit {
   @ViewChild(DatatableComponent) datatableComponent: DatatableComponent;
 
-  taskDatabase: TaskDatabase;
-  project: Project;
-  tasks: Task[];
+  project: any = {};
+  tasks: any[] = [];
   toast: HTMLIonToastElement;
-
-  taskStatus: any[] = ["To-Do", "Doing", "Done"];
 
   constructor(
     public activatedRoute: ActivatedRoute,
     public alertController: AlertController,
     public navController: NavController,
-    public toastController: ToastController
+    public toastController: ToastController,
+    public apiService: ApiService
   ) {
   }
 
@@ -42,20 +38,11 @@ export class TaskPage implements OnInit {
       if (result?.data != null && result?.data != undefined && result?.data != '') {
         this.project = JSON.parse(JSON.stringify(qs.parse(result?.data)));
       }
-
     }, error => {
       console.log('activatedRoute queryParams error', error);
     });
 
-    this.taskDatabase = new TaskDatabase();
-
-    this.taskDatabase
-      .open()
-      .catch(error => {
-        console.error(`Open failed: ${error.stack}`);
-      });
-
-    this.read();
+    this.fetch();
   }
 
   async showToastOnce(toastOptions: ToastOptions) {
@@ -71,24 +58,34 @@ export class TaskPage implements OnInit {
     }
   }
 
-  read() {
-    console.log('read');
+  fetch() {
+    console.log('fetch');
 
-    this.taskDatabase.transaction('rw', this.taskDatabase.task, async () => {
-      try {
-        const task = await this.taskDatabase.task
-          .where('project_id')
-          .equals(this.project.project_slug)
-          .toArray();
+    this.apiService.getProjectTasks(this.project).then((response: any) => {
+      console.log('getTasks response', response);
+      this.tasks = response;
+    }).catch((error) => {
+      console.log('getTasks error', error);
 
-        console.log('read task', JSON.stringify(task));
-        this.tasks = task;
-      } catch (error) {
-        console.log('read error', error);
+      const toastOptions: ToastOptions = {
+        message: 'Failed to get tasks project. Please try again.',
+        cssClass: 'toast-error',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
       }
+      this.showToastOnce(toastOptions);
 
-    }).catch(e => {
-      console.log(e.stack || e);
     });
   }
 
@@ -105,7 +102,7 @@ export class TaskPage implements OnInit {
     }
   }
 
-  async selectToEdit(task: Task) {
+  async selectToEdit(task: any) {
     const data = {
       ...task,
       due_date: moment(task.due_date).format('DD/MM/YYYY') || '' // Avoiding ISO Timezone due to ':' symbol before passing
@@ -122,7 +119,7 @@ export class TaskPage implements OnInit {
     }
   }
 
-  async selectToDelete(task: Task) {
+  async selectToDelete(task: any) {
     console.log('selectToDelete', task);
 
     const alert = await this.alertController.create({
@@ -151,68 +148,34 @@ export class TaskPage implements OnInit {
     alert.onWillDismiss().then(async (result: any) => {
       console.log('onWillDismiss result', result);
       if (result?.data != undefined && result?.data) {
+        const data = {
+          id: task?.id
+        }
+        this.apiService.deleteTask(data).then(async (response: any) => {
+          console.log('deleteTask response', response);
 
-        this.taskDatabase.transaction('rw', this.taskDatabase.task, async () => {
-          try {
-            return await Promise.all([
-              await this.taskDatabase.task
-                .where("slug")
-                .equals(task?.slug)
-                .delete()
-            ]);
-          } catch (error) {
-            console.log('delete error', error);
-            await Promise.reject([error]);
+          const toastOptions: ToastOptions = {
+            message: 'Successfully delete task.',
+            cssClass: 'toast-success',
+            duration: 3000,
+            position: 'bottom',
+            mode: 'md',
+            enterAnimation: ToastEnterAnimation,
+            leaveAnimation: ToastLeaveAnimation,
+            buttons: [
+              {
+                icon: 'assets/icon/close-toast.svg',
+                side: 'end',
+                role: 'cancel',
+                cssClass: 'toast-button-icon',
+              }
+            ]
           }
+          this.showToastOnce(toastOptions);
+          this.fetch();
 
-        }).then(async (result) => {
-          console.log('transaction result', result);
-
-          if (result != undefined && result[0] == 1) {
-            const toastOptions: ToastOptions = {
-              message: 'Successfully delete task.',
-              cssClass: 'toast-success',
-              duration: 3000,
-              position: 'bottom',
-              mode: 'md',
-              enterAnimation: ToastEnterAnimation,
-              leaveAnimation: ToastLeaveAnimation,
-              buttons: [
-                {
-                  icon: 'assets/icon/close-toast.svg',
-                  side: 'end',
-                  role: 'cancel',
-                  cssClass: 'toast-button-icon',
-                }
-              ]
-            }
-            this.showToastOnce(toastOptions);
-
-            this.read();
-
-          } else {
-            const toastOptions: ToastOptions = {
-              message: `Failed to delete. Record doesn't exist.`,
-              cssClass: 'toast-error',
-              duration: 3000,
-              position: 'bottom',
-              mode: 'md',
-              enterAnimation: ToastEnterAnimation,
-              leaveAnimation: ToastLeaveAnimation,
-              buttons: [
-                {
-                  icon: 'assets/icon/close-toast.svg',
-                  side: 'end',
-                  role: 'cancel',
-                  cssClass: 'toast-button-icon',
-                }
-              ]
-            }
-            this.showToastOnce(toastOptions);
-          }
-
-        }).catch(async error => {
-          console.log(error.stack || error);
+        }).catch((error) => {
+          console.log('deleteTask error', error);
 
           const toastOptions: ToastOptions = {
             message: 'Failed to delete task. Please try again.',
@@ -234,10 +197,32 @@ export class TaskPage implements OnInit {
           this.showToastOnce(toastOptions);
 
         });
-
       }
+
+    }).catch(async error => {
+      console.log(error.stack || error);
+
+      const toastOptions: ToastOptions = {
+        message: 'Failed to delete task. Please try again.',
+        cssClass: 'toast-error',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
+      }
+      this.showToastOnce(toastOptions);
+
     });
+
     await alert.present();
   }
-
 }

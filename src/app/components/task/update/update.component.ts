@@ -3,9 +3,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, NavController, ToastOptions } from '@ionic/angular';
 import * as qs from 'querystring';
-import { TaskDatabase } from '../../../adapters/task.adapter';
 import { ToastEnterAnimation, ToastLeaveAnimation } from '../../../animations/toast';
-import { Task, TaskStatus } from '../../../interfaces/task.interface';
+import { ApiService } from '../../../services/api/api.service';
+import * as moment from "moment";
 
 @Component({
   selector: 'app-update',
@@ -13,39 +13,29 @@ import { Task, TaskStatus } from '../../../interfaces/task.interface';
   styleUrls: ['./update.component.scss']
 })
 export class UpdateComponent implements OnInit {
-  data: Task = {
-    id: '',
+  data: any = {
     project_id: '',
-    user: '',
     title: '',
-    slug: '',
     description: '',
+    assigned_to_user_id: '',
     due_date: '',
-    status: TaskStatus.to_do
+    status: 'To Do'
   }
 
   validation_messages = {
-    id: [
-      { type: 'required', message: 'ID is required' },
-      { type: 'valid', message: '' }
-    ],
     project_id: [
       { type: 'required', message: 'Project ID is required' },
-      { type: 'valid', message: '' }
-    ],
-    user: [
-      { type: 'required', message: 'User is required' },
       { type: 'valid', message: '' }
     ],
     title: [
       { type: 'required', message: 'Title is required' },
       { type: 'valid', message: '' }
     ],
-    slug: [
-      { type: 'required', message: 'Slug is required' },
+    description: [
       { type: 'valid', message: '' }
     ],
-    description: [
+    assigned_to_user_id: [
+      { type: 'required', message: 'Assigned to is required' },
       { type: 'valid', message: '' }
     ],
     due_date: [
@@ -58,29 +48,18 @@ export class UpdateComponent implements OnInit {
   }
 
   taskForm: FormGroup;
-  taskDatabase: TaskDatabase;
   toast: HTMLIonToastElement;
-  status: TaskStatus;
+
+  usersList: { key: number; value: any; }[] = [];
 
   constructor(
     public activatedRoute: ActivatedRoute,
     public toastController: ToastController,
-    public navController: NavController
+    public navController: NavController,
+    public apiService: ApiService
   ) {
     this.taskForm = new FormGroup({
-      id: new FormControl('', {
-        validators: Validators.compose([
-          Validators.required
-        ]),
-        updateOn: 'change'
-      }),
       project_id: new FormControl('', {
-        validators: Validators.compose([
-          Validators.required
-        ]),
-        updateOn: 'change'
-      }),
-      user: new FormControl('', {
         validators: Validators.compose([
           Validators.required
         ]),
@@ -92,14 +71,14 @@ export class UpdateComponent implements OnInit {
         ]),
         updateOn: 'change'
       }),
-      slug: new FormControl('', {
+      description: new FormControl('', {
         validators: Validators.compose([
-          Validators.required
         ]),
         updateOn: 'change'
       }),
-      description: new FormControl('', {
+      assigned_to_user_id: new FormControl('', {
         validators: Validators.compose([
+          Validators.required
         ]),
         updateOn: 'change'
       }),
@@ -118,14 +97,6 @@ export class UpdateComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    // Instantiate it
-    this.taskDatabase = new TaskDatabase();
-
-    // Open it
-    this.taskDatabase.open().catch(error => {
-      console.error(`Open failed: ${error.stack}`);
-    });
-
     this.activatedRoute.queryParams.subscribe(async (result: any) => {
       console.log('activatedRoute queryParams result', result);
       if (result?.data != null && result?.data != undefined && result?.data != '') {
@@ -133,6 +104,37 @@ export class UpdateComponent implements OnInit {
       }
     }, error => {
       console.log('activatedRoute queryParams error', error);
+    });
+
+    this.apiService.getAllUsers().then((response: {}) => {
+      console.log('getAllUsers response', response);
+
+      // https://stackoverflow.com/questions/38824349/how-to-convert-an-object-to-an-array-of-key-value-pairs-in-javascript
+      const result = Object.keys(response).map((key) => ({ 'key': Number(key), 'value': response[key] }));
+      this.usersList = result;
+
+    }).catch((error) => {
+      console.log('getAllUsers error', error);
+
+      const toastOptions: ToastOptions = {
+        message: 'Failed to get project manager list. Please try again.',
+        cssClass: 'toast-error',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
+      }
+      this.showToastOnce(toastOptions);
+
     });
   }
 
@@ -153,56 +155,47 @@ export class UpdateComponent implements OnInit {
   }
 
   async update() {
-    console.log('update');
+    console.log('update', this.data);
 
-    this.taskDatabase.transaction('rw', this.taskDatabase.task, async () => {
+    const data = {
+      ...this.data,
+      assigned_to: this.data.assigned_to_user_id,
+      due_date: moment(this.data.due_date).format('YYYY-MM-DD') || ''
+    }
+    console.log('data', data);
+
+    this.apiService.updateTask(data).then(async (response: any) => {
+      console.log('updateTask response', response);
+
+      const toastOptions: ToastOptions = {
+        message: 'Successfully update task.',
+        cssClass: 'toast-success',
+        duration: 3000,
+        position: 'bottom',
+        mode: 'md',
+        enterAnimation: ToastEnterAnimation,
+        leaveAnimation: ToastLeaveAnimation,
+        buttons: [
+          {
+            icon: 'assets/icon/close-toast.svg',
+            side: 'end',
+            role: 'cancel',
+            cssClass: 'toast-button-icon',
+          }
+        ]
+      }
+      this.showToastOnce(toastOptions);
+
       try {
-        return Promise.all([
-          this.taskDatabase.task
-            .where('slug')
-            .equals(this.data.slug)
-            .modify(this.data)
-        ]);
+        await this.navController.navigateBack('/task', {
+          animationDirection: 'back'
+        });
       } catch (error) {
-        console.log('add error', error);
-        await Promise.reject([error]);
+        console.log('navigateBack error', error);
       }
 
-    }).then(async (result) => {
-      console.log('transaction result', result);
-
-      if (result != undefined) {
-        console.log('added task', `task ID: ${result[0]}`);
-        const toastOptions: ToastOptions = {
-          message: 'Successfully update task.',
-          cssClass: 'toast-success',
-          duration: 3000,
-          position: 'bottom',
-          mode: 'md',
-          enterAnimation: ToastEnterAnimation,
-          leaveAnimation: ToastLeaveAnimation,
-          buttons: [
-            {
-              icon: 'assets/icon/close-toast.svg',
-              side: 'end',
-              role: 'cancel',
-              cssClass: 'toast-button-icon',
-            }
-          ]
-        }
-        this.showToastOnce(toastOptions);
-
-        try {
-          await this.navController.navigateBack('/task', {
-            animationDirection: 'back'
-          });
-        } catch (error) {
-          console.log('navigateRoot error', error);
-        }
-      }
-
-    }).catch(async error => {
-      console.log(error.stack || error);
+    }).catch((error) => {
+      console.log('updateTask error', error);
 
       const toastOptions: ToastOptions = {
         message: 'Failed to update task. Please try again.',

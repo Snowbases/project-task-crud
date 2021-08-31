@@ -15,31 +15,7 @@
       <ion-title size="large">Create Project</ion-title>
     </ion-toolbar>
   </ion-header>
-  <!-- create -->
   <form class="ion-padding" [formGroup]="projectForm">
-    <!-- id -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="id">ID</label>
-        <ng-container *ngFor="let validation of validation_messages.id">
-          <div
-            *ngIf="(projectForm.get('id').hasError(validation.type) && (projectForm.get('id').dirty || projectForm.get('id').touched)) || (projectForm.get('id').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon [name]="(projectForm.get('id').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (projectForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label [ngStyle]="{ 'color': (projectForm.get('id').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-
-      <input [(ngModel)]="data.id" formControlName="id" name="id" type="text" class="form-control" id="id"
-        placeholder="Enter ID">
-    </div>
-
     <!-- project name -->
     <div class="form-group">
       <div class="label-wrapper">
@@ -60,62 +36,13 @@
         </ng-container>
       </div>
 
-      <input [(ngModel)]="data.project_name" formControlName="project_name" name="project_name" type="text"
-        class="form-control" id="project-name" placeholder="Enter Project Name">
+      <input [(ngModel)]="data.name" formControlName="project_name" name="project_name" type="text" class="form-control"
+        id="project-name" placeholder="Enter Project Name">
     </div>
 
-    <!-- project slug -->
     <div class="form-group">
       <div class="label-wrapper">
-        <label for="project-slug">Project Slug</label>
-        <ng-container *ngFor="let validation of validation_messages.project_slug">
-          <div
-            *ngIf="(projectForm.get('project_slug').hasError(validation.type) && (projectForm.get('project_slug').dirty || projectForm.get('project_slug').touched)) || (projectForm.get('project_slug').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon
-              [name]="(projectForm.get('project_slug').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (projectForm.get('project_slug').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label [ngStyle]="{ 'color': (projectForm.get('project_slug').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      <input [(ngModel)]="data.project_slug" formControlName="project_slug" name="project_slug" type="text"
-        class="form-control" id="project-slug" placeholder="Enter Project Slug">
-    </div>
-
-    <!-- project description -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="project-description">Project Description</label>
-        <!-- <ng-container *ngFor="let validation of validation_messages.project_description">
-          <div
-            *ngIf="(projectForm.get('project_description').hasError(validation.type) && (projectForm.get('project_description').dirty || projectForm.get('project_description').touched)) || (projectForm.get('project_description').valid && validation?.type == 'valid')"
-            class="container-error">
-            <ion-icon
-              [name]="(projectForm.get('project_description').valid) ? 'checkmark-circle-outline' : 'alert-circle-outline'"
-              [ngStyle]="{ 'color': (projectForm.get('project_description').valid) ? '#4caf50' : '#f11f1f' }">
-            </ion-icon>
-            <div class="label-message">
-              <ion-label
-                [ngStyle]="{ 'color': (projectForm.get('project_description').valid) ? '#4caf50' : '#f11f1f' }">{{
-                validation?.message }}</ion-label>
-            </div>
-          </div>
-        </ng-container> -->
-      </div>
-
-      <input [(ngModel)]="data.project_description" formControlName="project_description" name="project_description"
-        type="text" class="form-control" id="project-description" placeholder="Enter Project Description">
-    </div>
-
-    <!-- project manager -->
-    <div class="form-group">
-      <div class="label-wrapper">
-        <label for="project-manager">Project Manager</label>
+        <label for="project_manager">Project Manager</label>
         <ng-container *ngFor="let validation of validation_messages.project_manager">
           <div
             *ngIf="(projectForm.get('project_manager').hasError(validation.type) && (projectForm.get('project_manager').dirty || projectForm.get('project_manager').touched)) || (projectForm.get('project_manager').valid && validation?.type == 'valid')"
@@ -132,8 +59,12 @@
         </ng-container>
       </div>
 
-      <input [(ngModel)]="data.project_manager" formControlName="project_manager" name="project_manager" type="text"
-        class="form-control" id="project-manager" placeholder="Enter Project Manager">
+      <select [(ngModel)]="data.manager_id" formControlName="project_manager" name="project_manager" class="form-select"
+        aria-label="Select project manager">
+        <option value="" disabled selected>Select project manager</option>
+        <option *ngFor="let projectManager of projectManagerList" [value]="projectManager?.key">{{
+          projectManager?.value }}</option>
+      </select>
     </div>
 
     <div class="container-button">
